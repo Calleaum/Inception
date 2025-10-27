@@ -1,0 +1,79 @@
+services:
+  mariadb:
+    build: ./requirements/mariadb
+    container_name: mariadb
+    env_file:
+      - .env
+    environment:
+      MDB_NAME: ${MDB_NAME}
+      MDB_USER: ${MDB_USER}
+      MDB_PWD: ${MDB_PWD}
+      MDB_ROOT: ${MDB_ROOT}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - inception
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -u${MDB_USER} -p${MDB_PWD} || exit 1"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+    container_name: wordpress
+    env_file:
+      - .env
+    environment:
+      MDB_NAME: ${MDB_NAME}
+      MDB_USER: ${MDB_USER}
+      MDB_PWD: ${MDB_PWD}
+      MDB_HOST: ${MDB_HOST}
+      WP_URL: ${WP_URL}
+      WP_TITLE: ${WP_TITLE}
+      WP_ADMIN: ${WP_ADMIN}
+      WP_ADMIN_PWD: ${WP_ADMIN_PWD}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
+      WP_USER: ${WP_USER}
+      WP_USER_PWD: ${WP_USER_PWD}
+      WP_USER_EMAIL: ${WP_USER_EMAIL}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    volumes:
+      - wordpress_data:/var/www/html
+    networks:
+      - inception
+    restart: unless-stopped
+    expose:
+      - "9000"
+
+  nginx:
+    build: ./requirements/nginx
+    container_name: nginx
+    env_file:
+      - .env
+    depends_on:
+      - wordpress
+    volumes:
+      - wordpress_data:/var/www/html:ro
+    networks:
+      - inception
+    ports:
+      - "443:443"
+    restart: unless-stopped
+
+volumes:
+  mariadb_data:
+    driver: local
+    name: mariadb_data
+
+  wordpress_data:
+    driver: local
+    name: wordpress_data
+
+networks:
+  inception:
+    driver: bridge
