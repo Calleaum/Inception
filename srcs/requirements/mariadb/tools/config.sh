@@ -2,6 +2,21 @@
 
 set -e
 
+# LECTURE DES SECRETS
+if [ -f /run/secrets/db_password ]; then
+    MDB_PWD=$(cat /run/secrets/db_password)
+else
+    echo "[ERROR] Secret db_password not found!"
+    exit 1
+fi
+
+if [ -f /run/secrets/db_root_password ]; then
+    MDB_ROOT=$(cat /run/secrets/db_root_password)
+else
+    echo "[ERROR] Secret db_root_password not found!"
+    exit 1
+fi
+
 mkdir -p /run/mysqld
 chown -R mysql:mysql /run/mysqld /var/lib/mysql
 rm -f /run/mysqld/mysqld.sock
@@ -16,7 +31,7 @@ fi
 mysqld --user=mysql --skip-networking &
 pid="$!"
 
-# Attente que MariaDB soit prêt (correction: utiliser root sans password)
+# Attente que MariaDB soit prêt
 until mysqladmin ping --silent 2>/dev/null; do 
     echo "[INFO] Waiting for MariaDB to be ready..."
     sleep 1
@@ -42,7 +57,7 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '${MDB_ROOT}';
 FLUSH PRIVILEGES;
 EOF
 
-# Arrêt propre de MariaDB (correction: utiliser le password root défini)
+# Arrêt propre de MariaDB
 mysqladmin -u root -p"${MDB_ROOT}" shutdown || kill "$pid"
 wait "$pid" 2>/dev/null || true
 

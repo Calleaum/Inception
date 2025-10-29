@@ -2,7 +2,29 @@
 
 set -e
 
-# Attente que la base de données soit prête (DÉCOMMENTÉ ET CORRIGÉ)
+# LECTURE DES SECRETS
+if [ -f /run/secrets/db_password ]; then
+    MDB_PWD=$(cat /run/secrets/db_password)
+else
+    echo "[ERROR] Secret db_password not found!"
+    exit 1
+fi
+
+if [ -f /run/secrets/wp_admin_password ]; then
+    WP_ADMIN_PWD=$(cat /run/secrets/wp_admin_password)
+else
+    echo "[ERROR] Secret wp_admin_password not found!"
+    exit 1
+fi
+
+if [ -f /run/secrets/wp_user_password ]; then
+    WP_USER_PWD=$(cat /run/secrets/wp_user_password)
+else
+    echo "[ERROR] Secret wp_user_password not found!"
+    exit 1
+fi
+
+# Attente que la base de données soit prête
 echo "[INFO] Waiting for MariaDB to be ready..."
 until mysqladmin ping -h"$MDB_HOST" -u"$MDB_USER" -p"$MDB_PWD" --silent 2>/dev/null; do 
     echo "[INFO] Still waiting for MariaDB at $MDB_HOST..."
