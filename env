@@ -1,0 +1,19 @@
+# MariaDB Configuration
+MDB_NAME=wordpress
+MDB_USER=wpuser
+MDB_PWD=SecurePassword123!
+MDB_ROOT=RootPassword456!
+MDB_HOST=mariadb
+
+# WordPress Configuration
+WP_URL=https://calleaum.42.fr
+WP_TITLE=Inception Project Calleaum
+WP_ADMIN=admin
+WP_ADMIN_PWD=AdminSecure789!
+WP_ADMIN_EMAIL=admin@calleaum.42.fr
+WP_USER=johndoe
+WP_USER_PWD=UserPassword321!
+WP_USER_EMAIL=user@calleaum.42.fr
+
+# Nginx Configuration
+DOMAIN_NAME=calleaum.42.fr
