@@ -1,0 +1,37 @@
+# MariaDB Configuration
+MDB_NAME=wordpress
+MDB_USER=wpuser
+MDB_PWD=SecurePassword123!
+MDB_ROOT=RootPassword456!
+MDB_HOST=mariadb
+
+# WordPress Configuration
+WP_URL=https://calleaum.42.fr
+WP_TITLE=Inception Project Calleaum
+WP_ADMIN=admin
+WP_ADMIN_PWD=AdminSecure789!
+WP_ADMIN_EMAIL=admin@calleaum.42.fr
+WP_USER=johndoe
+WP_USER_PWD=UserPassword321!
+WP_USER_EMAIL=user@calleaum.42.fr
+
+# Nginx Configuration
+DOMAIN_NAME=calleaum.42.fr
+
+
+
+sudo mount -t vboxsf VMinception /mnt/shared
+
+docker stop $(docker ps -qa); docker rm $(docker ps -qa); docker rmi -f $(docker images -qa); docker volume rm $(docker volume ls -q); docker network rm $(docker network ls -q) 2>/dev/null
+
+EVAL
+
+The evaluated person has to explain to you in simple terms:
+How Docker and docker compose work
+The difference between a Docker image used with docker compose and without docker compose
+The benefit of Docker compared to VMs
+The pertinence of the directory structure required for this project (an example is provided in the subject's PDF file).
+
+The evaluated student has to give you a simple explanation of docker-network. If any of the above points is not correct, the evaluation process ends now.
+
+The evaluated student must be able to explain you how to login into the database. Verify that the database is not empty. If any of the above points is not correct, the evaluation process ends now.
