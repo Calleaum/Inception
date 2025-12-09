@@ -5,15 +5,15 @@ services:
     env_file:
       - .env
     environment:
-      MDB_NAME: ${MDB_NAME}
-      MDB_USER: ${MDB_USER}
+      MDB_NAME: ${MDB_NAME}  # Database name
+      MDB_USER: ${MDB_USER}  # Database user
     secrets:
-      - db_password
-      - db_root_password
+      - db_password  # Password for the database user
+      - db_root_password  # Root password for MariaDB
     volumes:
-      - mariadb_data:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql  # Persist MariaDB data
     networks:
-      - inception
+      - inception  # Network for communication between containers
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -u${MDB_USER} -p$(cat /run/secrets/db_password) || exit 1"]
@@ -28,29 +28,29 @@ services:
     env_file:
       - .env
     environment:
-      MDB_NAME: ${MDB_NAME}
-      MDB_USER: ${MDB_USER}
-      MDB_HOST: ${MDB_HOST}
-      WP_URL: ${WP_URL}
-      WP_TITLE: ${WP_TITLE}
-      WP_ADMIN: ${WP_ADMIN}
-      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
-      WP_USER: ${WP_USER}
-      WP_USER_EMAIL: ${WP_USER_EMAIL}
+      MDB_NAME: ${MDB_NAME}  # Database name for WordPress
+      MDB_USER: ${MDB_USER}  # Database user for WordPress
+      MDB_HOST: ${MDB_HOST}  # Host for the database
+      WP_URL: ${WP_URL}  # WordPress site URL
+      WP_TITLE: ${WP_TITLE}  # WordPress site title
+      WP_ADMIN: ${WP_ADMIN}  # WordPress admin username
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}  # WordPress admin email
+      WP_USER: ${WP_USER}  # WordPress user for additional account
+      WP_USER_EMAIL: ${WP_USER_EMAIL}  # WordPress user email
     secrets:
-      - db_password
-      - wp_admin_password
-      - wp_user_password
+      - db_password  # Database password for WordPress
+      - wp_admin_password  # WordPress admin password
+      - wp_user_password  # WordPress user password
     depends_on:
       mariadb:
         condition: service_healthy
     volumes:
-      - wordpress_data:/var/www/html
+      - wordpress_data:/var/www/html  # Mount WordPress data
     networks:
-      - inception
+      - inception  # Network for communication between containers
     restart: unless-stopped
     expose:
-      - "9000"
+      - "9000"  # Expose port for NGINX to connect
 
   nginx:
     build: ./requirements/nginx
@@ -58,29 +58,36 @@ services:
     env_file:
       - .env
     depends_on:
-      - wordpress
+      - wordpress  # NGINX depends on WordPress being ready
     volumes:
-      - wordpress_data:/var/www/html:ro
+      - wordpress_data:/var/www/html:ro  # Read-only volume for WordPress files
     networks:
       - inception
     ports:
-      - "443:443"
+      - "443:443"  # Expose HTTPS port (443) to the host
     restart: unless-stopped
 
 volumes:
   mariadb_data:
-    driver: local
     name: mariadb_data
-
-  wordpress_data:
     driver: local
+    driver_opts:
+      type: none
+      device: /home/calleaum/data/mariadb
+      o: bind
+  wordpress_data:
     name: wordpress_data
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/calleaum/data/wordpress
+      o: bind
 
 networks:
   inception:
     driver: bridge
 
-# Définition des secrets
+# Define the secrets
 secrets:
   db_password:
     file: ./secrets/db_password.txt
@@ -90,3 +97,4 @@ secrets:
     file: ./secrets/wp_admin_password.txt
   wp_user_password:
     file: ./secrets/wp_user_password.txt
+

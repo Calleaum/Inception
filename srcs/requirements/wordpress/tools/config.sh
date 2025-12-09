@@ -2,7 +2,7 @@
 
 set -e
 
-# LECTURE DES SECRETS
+# READING SECRETS
 if [ -f /run/secrets/db_password ]; then
     MDB_PWD=$(cat /run/secrets/db_password)
 else
@@ -24,7 +24,7 @@ else
     exit 1
 fi
 
-# Attente que la base de données soit prête
+# Wait until the database is ready
 echo "[INFO] Waiting for MariaDB to be ready..."
 until mysqladmin ping -h"$MDB_HOST" -u"$MDB_USER" -p"$MDB_PWD" --silent 2>/dev/null; do 
     echo "[INFO] Still waiting for MariaDB at $MDB_HOST..."
@@ -33,11 +33,11 @@ done
 
 echo "[INFO] MariaDB is ready!"
 
-# Installation de WordPress si wp-config.php n'existe pas
+# Install WordPress if wp-config.php doesn't exist
 if [ ! -f "/var/www/html/wp-config.php" ]; then
     echo "[INFO] Installing WordPress..."
 
-    # Création du fichier de configuration WordPress
+    # Create the WordPress configuration file
     wp config create \
         --dbname="$MDB_NAME" \
         --dbuser="$MDB_USER" \
@@ -46,7 +46,7 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --path="/var/www/html" \
         --allow-root
     
-    # Installation du core WordPress
+    # Install WordPress core
     wp core install \
         --url="$WP_URL" \
         --title="$WP_TITLE" \
@@ -56,13 +56,13 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --skip-email \
         --allow-root
     
-    # Création d'un utilisateur supplémentaire
+    # Create an additional user
     wp user create "$WP_USER" "$WP_USER_EMAIL" \
         --user_pass="$WP_USER_PWD" \
         --role=subscriber \
         --allow-root
 
-    # Configuration des URLs
+    # Configure URLs
     wp option update home "$WP_URL" --allow-root 
     wp option update siteurl "$WP_URL" --allow-root
 
@@ -71,5 +71,5 @@ else
     echo "[INFO] WordPress already configured"
 fi
 
-# Lancement de PHP-FPM
+# Start PHP-FPM
 exec "$@"

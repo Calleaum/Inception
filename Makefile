@@ -24,5 +24,9 @@ fclean: clean
 	docker image rm -f $$(docker images --filter=reference='*wordpress*' -q) || true
 	docker image rm -f $$(docker images --filter=reference='*mariadb*' -q) || true
 	docker image prune -f
+	sudo rm -rf /home/calleaum/data/wordpress/* /home/calleaum/data/wordpress/.[!.]*
+	sudo rm -rf /home/calleaum/data/mariadb/* /home/calleaum/data/mariadb/.[!.]*
+	sudo rm -f /var/lib/docker/containers/*/*-json.log || true
+
 
 rebuild: fclean up
