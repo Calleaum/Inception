@@ -18,7 +18,7 @@ WP_USER_EMAIL=user@calleaum.42.fr
 # Nginx Configuration
 DOMAIN_NAME=calleaum.42.fr
 
-
+calleaum ALL=(ALL) NOPASSWD: /bin/rm -rf /home/calleaum/data/wordpress/*, /bin/rm -rf /home/calleaum/data/mariadb/*, /bin/rm -f /var/lib/docker/containers/*/*-json.log
 
 sudo mount -t vboxsf VMinception /mnt/shared
 
