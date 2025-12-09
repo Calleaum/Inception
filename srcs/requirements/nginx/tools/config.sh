@@ -3,7 +3,7 @@
 CERT_PATH="/etc/nginx/ssl/nginx.crt"
 KEY_PATH="/etc/nginx/ssl/nginx.key"
 
-# Generate the TLS certificate if it does not exist
+# Génération du certificat TLS s'il n'existe pas
 if [ ! -f "$CERT_PATH" ] || [ ! -f "$KEY_PATH" ]; then
     echo "[INFO] Generating TLS certificate for $DOMAIN_NAME ..."
     openssl req -x509 -nodes -days 365 \

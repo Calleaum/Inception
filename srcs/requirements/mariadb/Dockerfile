@@ -1,22 +1,21 @@
 FROM debian:bookworm
 
-# Install necessary packages
+# Installation des paquets nécessaires
 RUN apt-get update && apt-get install -y \
     mariadb-server \
     mariadb-client \
     bash \
     && rm -rf /var/lib/apt/lists/*
 
-# Create required directories
+# Création des dossiers requis
 RUN mkdir -p /run/mysqld /var/lib/mysql \
     && chown -R mysql:mysql /run/mysqld /var/lib/mysql
 
-# Copy configuration files and initialization script
+# Copie des fichiers de configuration et du script d'initialisation
 COPY tools/config.sh /config.sh
 RUN chmod +x /config.sh
 
-# Expose the port
+# Exposition du port
 EXPOSE 3306
 
-# Set the entry point to the initialization script
 ENTRYPOINT ["/config.sh"]

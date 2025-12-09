@@ -19,21 +19,10 @@ clean:
 	$(COMPOSE) --env-file $(ENV_FILE) down -v
 
 fclean: clean
-# 	Remove named Docker volumes (old style)
 	docker volume rm -f mariadb_data wordpress_data || true
-	
-#	Remove Docker images
 	docker image rm -f $$(docker images --filter=reference='*nginx*' -q) || true
 	docker image rm -f $$(docker images --filter=reference='*wordpress*' -q) || true
 	docker image rm -f $$(docker images --filter=reference='*mariadb*' -q) || true
 	docker image prune -f
-	
-#	Remove all content inside bind mount folders, but keep the folders themselves
-	sudo rm -rf /home/calleaum/data/wordpress/* /home/calleaum/data/wordpress/.[!.]*
-	sudo rm -rf /home/calleaum/data/mariadb/* /home/calleaum/data/mariadb/.[!.]*
-	
-#	Remove Docker container logs
-	sudo rm -f /var/lib/docker/containers/*/*-json.log || true
-
 
 rebuild: fclean up

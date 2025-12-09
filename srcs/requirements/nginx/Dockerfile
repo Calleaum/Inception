@@ -1,26 +1,23 @@
 FROM debian:bookworm
 
-# Install necessary packages
+# Installation des paquets nécessaires
 RUN apt-get update && apt-get install -y \
     nginx \
     openssl \
     bash \
     && rm -rf /var/lib/apt/lists/*
 
-# Create required directories
+# Création des répertoires requis
 RUN mkdir -p /etc/nginx/ssl /run/nginx
 
-# Copy Nginx configuration
+# Copie de la configuration Nginx
 COPY conf/default.conf /etc/nginx/nginx.conf
 
-# Copy TLS initialization script
+# Copie du script d'initialisation TLS
 COPY tools/config.sh /config.sh
 RUN chmod +x /config.sh
 
-# Expose port 443 for HTTPS
 EXPOSE 443
 
-# Set the entry point to the initialization script
 ENTRYPOINT ["/config.sh"]
-
 

@@ -2,7 +2,7 @@
 
 set -e
 
-# READING SECRETS
+# LECTURE DES SECRETS
 if [ -f /run/secrets/db_password ]; then
     MDB_PWD=$(cat /run/secrets/db_password)
 else
@@ -21,17 +21,17 @@ mkdir -p /run/mysqld
 chown -R mysql:mysql /run/mysqld /var/lib/mysql
 rm -f /run/mysqld/mysqld.sock
 
-# INITIALIZE MARIADB IF NECESSARY
+# INITIALISATION DE MARIADB SI NECESSAIRE
 if [ ! -d "/var/lib/mysql/mysql" ]; then
     echo "[INFO] Initializing MariaDB data directory..."
     mariadb-install-db --user=mysql --datadir=/var/lib/mysql > /dev/null
 fi
 
-# TEMPORARY START OF MARIADB WITHOUT NETWORKING
+# Demarrage temporaire de MariaDB sans reseau
 mysqld --user=mysql --skip-networking &
 pid="$!"
 
-# WAIT UNTIL MARIADB IS READY
+# Attente que MariaDB soit pret
 until mysqladmin ping --silent 2>/dev/null; do 
     echo "[INFO] Waiting for MariaDB to be ready..."
     sleep 1
@@ -40,25 +40,25 @@ done
 echo "[INFO] Creating database and users..."
 mysql -u root -p"${MDB_ROOT}" << EOF
 
--- CREATE DATABASE
+-- Ce©ation de la base de donnÃ©es
 CREATE DATABASE IF NOT EXISTS \`${MDB_NAME}\`;
 
--- CREATE APPLICATION USER
+-- Creation de l'utilisateur applicatif
 CREATE USER IF NOT EXISTS '${MDB_USER}'@'%' IDENTIFIED BY '${MDB_PWD}';
 CREATE USER IF NOT EXISTS '${MDB_USER}'@'localhost' IDENTIFIED BY '${MDB_PWD}';
 
--- GRANT PRIVILEGES
+-- Attribution des privilÃ¨ges
 GRANT ALL PRIVILEGES ON \`${MDB_NAME}\`.* TO '${MDB_USER}'@'%';
 GRANT ALL PRIVILEGES ON \`${MDB_NAME}\`.* TO '${MDB_USER}'@'localhost';
 
--- SET ROOT PASSWORD
+-- DÃ©finition du mot de passe root
 ALTER USER 'root'@'localhost' IDENTIFIED BY '${MDB_ROOT}';
 
--- APPLY CHANGES
+-- Application des changements
 FLUSH PRIVILEGES;
 EOF
 
-# CLEAN SHUTDOWN OF MARIADB
+# Arret propre de MariaDB
 mysqladmin -u root -p"${MDB_ROOT}" shutdown || kill "$pid"
 wait "$pid" 2>/dev/null || true
 
